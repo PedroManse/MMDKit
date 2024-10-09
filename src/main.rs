@@ -1,3 +1,6 @@
+use mmdkit::*;
+
 fn main() {
-    println!("Hello, world!");
+    let x = plex2::VarPlex::new(&['A', 'B']);
+    println!("{x:?}");
 }
