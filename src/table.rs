@@ -1,40 +1,55 @@
 use crate::*;
-use logic::{Op, Value};
 
-impl Value {
-    pub fn get_plex(&self, vars: &Vars, iter: usize) -> bool {
-        use Value::*;
-        match self {
-            Expr(op) => op.get_plex(vars, iter),
-            Var { var_index } => vars.get_plex(*var_index, iter),
-        }
-    }
-}
-
-impl Op {
-    pub fn get_plex(&self, vars: &Vars, iter: usize) -> bool {
-        use Op::*;
-        match self {
-            Not(x) => !x.get_plex(vars, iter),
-            And(a, b) => a.get_plex(vars, iter) && b.get_plex(vars, iter),
-            Or(a, b) => a.get_plex(vars, iter) || b.get_plex(vars, iter),
-            Xor(a, b) => a.get_plex(vars, iter) ^ b.get_plex(vars, iter),
-            Then(a, b) => {
-                let a = a.get_plex(vars, iter);
-                let b = b.get_plex(vars, iter);
-                !(a && !b)
-            }
-        }
-    }
-}
-
+#[derive(Debug)]
 pub struct Table {
     pub expr: Value,
-    pub vars: Vars,
+    pub vars: VarPlex,
+    pub results: Vec<bool>,
 }
 
 impl Table {
-    pub fn new(expr: Value, vars: Vars) -> Table {
-        Table { expr, vars }
+    pub fn new(expr: Value, vars: VarPlex) -> Table {
+        let mut results = Vec::with_capacity(vars.get_iter_count());
+        for iter in 0..vars.get_iter_count() {
+            results.push(expr.get_plex(&vars, iter));
+        }
+        Table {
+            expr,
+            vars,
+            results,
+        }
+    }
+    pub fn get_plex(&self, iter: usize) -> bool {
+        self.results[iter]
     }
 }
+
+impl std::ops::Deref for Table {
+    type Target = VarPlex;
+    fn deref(&self) -> &Self::Target {
+        &self.vars
+    }
+}
+
+#[derive(Debug)]
+pub struct Tree {
+    pub expr: Value,
+    pub vars: SetVars,
+}
+
+impl Tree {
+    pub fn new(expr: Value, vars: SetVars) -> Tree {
+        Tree { expr, vars }
+    }
+    pub fn resolve(&self) -> bool {
+        self.expr.get_var(&self.vars)
+    }
+}
+
+impl std::ops::Deref for Tree {
+    type Target = SetVars;
+    fn deref(&self) -> &Self::Target {
+        &self.vars
+    }
+}
+

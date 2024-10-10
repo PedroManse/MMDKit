@@ -1,6 +1,24 @@
 use mmdkit::*;
 
 fn main() {
-    let x = plex2::VarPlex::new(&['A', 'B']);
-    println!("{x:?}");
+    let mvar = |n| Var{var_name: n};
+    use Op::*;
+    use Value::*;
+    let code = 
+        Or(
+            Xor(
+                mvar('A'),
+                mvar('B'),
+            ).expr(),
+            And(
+                Not(mvar('B')).expr(),
+                Not(mvar('A')).expr(),
+            ).expr(),
+        ).expr();
+    //let table = table::Table::new(code, VarPlex::new(&['A', 'B']));
+    //println!("{y}");
+    println!("{}", code.depth());
+    let tree = table::Tree::new(code, SetVars::new(&['A', 'B']));
+    println!("{tree}");
+    println!("\n\n\n\n");
 }

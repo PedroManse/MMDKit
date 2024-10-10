@@ -1,62 +1,68 @@
+use std::collections::HashMap;
+
 #[derive(Debug)]
-pub struct Plexer {
-    var_count: usize,
-    iter_matrix: Vec<Vec<bool>>,
+pub struct VarPlex {
+    vars: Vec<char>,
+    var_map: HashMap<char, Vec<bool>>,
 }
 
-impl Plexer {
-    pub fn new(var_count: usize) -> Plexer {
+impl VarPlex {
+    pub fn new(vars: &[char]) -> VarPlex {
+        let var_count = vars.len();
         let iter_count = usize::pow(2, var_count as u32);
-        let mut iter_matrix = vec![Vec::with_capacity(iter_count); var_count];
-
-        for var in 0..var_count {
-            let mut now = true; // current value
-            let flip_target = 1 << var_count >> var; // after target iterations, flip current value
+        let mut var_map = HashMap::<char, Vec<bool>>::with_capacity(var_count);
+        for (idx, var) in vars.iter().enumerate() {
+            let mut now = true;
+            let flip_target = 1 << var_count >> idx >> 1; // after target iterations, flip current value
+            let mut dim = Vec::with_capacity(iter_count);
             for iter in 1..=iter_count {
-                iter_matrix[var].push(now);
+                dim.push(now);
                 if iter % flip_target == 0 {
                     now = !now;
                 }
             }
+            var_map.insert(*var, dim);
         }
-
-        Plexer {
-            var_count,
-            iter_matrix,
+        VarPlex {
+            var_map,
+            vars: vars.to_vec(),
         }
     }
-    pub fn get_plex(&self, idx: usize, iter: usize) -> bool {
-        self.iter_matrix[idx][iter]
+    pub fn get_vars(&self) -> &[char] {
+        &self.vars
+    }
+    pub fn get_plex(&self, var: &char, iter: usize) -> bool {
+        self.var_map[var][iter]
     }
     pub fn get_var_count(&self) -> usize {
-        self.var_count
+        self.vars.len()
     }
     pub fn get_iter_count(&self) -> usize {
-        usize::pow(2, self.var_count as u32)
+        1 << self.get_var_count()
     }
 }
 
-// variables "multiplexed" acording to each possible iteration (row) in a truth table
-pub struct Vars {
-    var_names: Vec<char>,
-    plexer: Plexer,
+#[derive(Debug)]
+pub struct SetVars {
+    vars: Vec<char>,
+    var_map: HashMap<char, bool>,
 }
 
-impl Vars {
-    pub fn new(vars: &[char]) -> Vars {
-        Vars {
-            var_names: vars.to_vec(),
-            plexer: Plexer::new(vars.len()),
+impl SetVars {
+    pub fn new(vars: &[char]) -> SetVars {
+        let var_map = HashMap::from_iter(vars.into_iter().map(|v| (*v, false)));
+        SetVars {
+            vars: vars.to_vec(),
+            var_map,
         }
     }
-    pub fn get_var_name(&self, var_id: usize) -> char {
-        self.var_names[var_id]
+    pub fn flip_var(&mut self, var: &char) {
+        *self.var_map.get_mut(var).unwrap() = !self.var_map[var];
     }
-}
-
-impl std::ops::Deref for Vars {
-    type Target = Plexer;
-    fn deref(&self) -> &Plexer {
-        &self.plexer
+    pub fn set_var(&mut self, var: &char, value: bool) {
+        *self.var_map.get_mut(var).unwrap() = value;
+    }
+    pub fn get_var(&self, var: &char) -> bool {
+        self.var_map[var]
     }
 }
