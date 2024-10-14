@@ -15,10 +15,7 @@ fn main() {
                 Not(mvar('A')).expr(),
             ).expr(),
         ).expr();
-    //let table = table::Table::new(code, VarPlex::new(&['A', 'B']));
-    //println!("{y}");
-    println!("{}", code.depth());
-    let tree = table::Tree::new(code, SetVars::new(&['A', 'B']));
-    println!("{tree}");
+    let table = table::Table::new(code, VarPlex::new(&['A', 'B']));
+    println!("{table}");
     println!("\n\n\n\n");
 }

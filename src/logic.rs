@@ -17,13 +17,14 @@ pub enum Op {
 
 impl Op {
     pub fn depth(&self) -> usize {
+        use std::cmp::max;
         use Op::*;
         1+match self {
             Not(x) => x.depth(),
-            And(a, b) => std::cmp::max(a.depth(), b.depth()),
-            Or(a, b) => std::cmp::max(a.depth(), b.depth()),
-            Xor(a, b) => std::cmp::max(a.depth(), b.depth()),
-            Then(a, b) => std::cmp::max(a.depth(), b.depth()),
+            And(a, b)  => max(a.depth(), b.depth()),
+            Or(a, b)   => max(a.depth(), b.depth()),
+            Xor(a, b)  => max(a.depth(), b.depth()),
+            Then(a, b) => max(a.depth(), b.depth()),
         }
     }
     pub fn expr(self) -> Value {

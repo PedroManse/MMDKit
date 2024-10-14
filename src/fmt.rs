@@ -46,7 +46,7 @@ impl Value {
             Var { var_name } => {
                 let (down, up) = ansi_tree_down_up(depth);
                 let value = bool_fmt(vars.get_var(var_name));
-                format!("({down}{value}{up}{var_name})")
+                format!("{down}{value}{up}{var_name}")
             }
         }
     }
@@ -68,7 +68,7 @@ impl Op {
         match self {
             Not(x) => {
                 format!(
-                    "{down}{}{up}¬({})",
+                    "{down}{}{up}¬{}",
                     bool_fmt(self.get_var(vars)),
                     x.fmt_tree(depth-1, vars)
                 )

@@ -3,6 +3,14 @@ name = "mmdkit"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "ttable"
+path = "src/pkg/ttable.rs"
+
+[[bin]]
+name = "itable"
+path = "src/pkg/itable.rs"
+
 [dependencies]
 regex = "1.11.0"
 thiserror = "1.0.64"
